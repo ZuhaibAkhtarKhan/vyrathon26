@@ -5,11 +5,11 @@
 # your platform, install binary-only with:
 #     pip install --only-binary :all: -r requirements.txt
 #
-# Production Postgres driver is commented out by default so that a fresh
-# install stays lean and works out of the box on SQLite. Uncomment (or
-# install separately) before deploying with DATABASE_URL=postgresql://...
-#
-# psycopg2-binary>=2.9.10
+# The Postgres driver is included so the same image deploys on both SQLite
+# (local dev, DATABASE_URL=sqlite:///...) and managed Postgres (production,
+# DATABASE_URL=postgresql+psycopg2://...). The driver is ~1 MB and harmless
+# when unused.
+psycopg2-binary>=2.9.10
 
 fastapi>=0.115
 uvicorn[standard]>=0.32

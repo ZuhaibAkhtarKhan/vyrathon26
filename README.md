@@ -80,6 +80,13 @@ This starts Postgres 16 and the API on <http://localhost:8000>. Photos in
 `./data/images` on your host are mounted into the API container at
 `/app/data/images` and can be indexed via `POST /ingest/scan`.
 
+### 3. Deploy to Render (one-click)
+
+The repo ships with a `render.yaml` Blueprint. In the Render dashboard click
+**New + → Blueprint**, pick this repo, **Apply**, and in ~6 minutes your API
+is live with a managed Postgres + persistent disk. Full guide:
+[`docs/DEPLOY.md`](docs/DEPLOY.md).
+
 ## API Reference
 
 | Method | Path                                | Purpose                                                                 |

@@ -1,0 +1,74 @@
+# Render Blueprint — one-click deploy for Grabpic.
+#
+# Provisions:
+#   * A managed Postgres database (free plan, 1 GB, 90-day retention)
+#   * A Dockerized web service running the FastAPI app
+#   * A 5 GB persistent disk mounted at /var/data for uploaded images and
+#     cached ONNX model weights
+#
+# Usage:
+#   1. Push this file to the default branch on GitHub.
+#   2. In Render: "New +" -> "Blueprint" -> pick this repo -> Apply.
+#   3. Wait ~6 minutes. The service will be live at
+#      https://grabpic-api.onrender.com (or whatever slug Render assigns).
+#
+# Free-tier notes:
+#   * `plan: starter` is $7/mo and includes the persistent disk (required
+#     for keeping uploaded photos + cached ONNX models across restarts).
+#   * To try it free: change `plan: starter` to `plan: free`, remove the
+#     `disk:` block, and accept that uploads/models are wiped whenever the
+#     service cold-starts (Render spins down free services after 15 min idle).
+
+services:
+  - type: web
+    name: grabpic-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: oregon
+    branch: main
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: grabpic-db
+          property: connectionString
+
+      - key: FACE_ENGINE
+        value: opencv
+
+      - key: FACE_MATCH_THRESHOLD
+        value: "0.363"
+
+      - key: FACE_DETECTION_SCORE_THRESHOLD
+        value: "0.6"
+
+      - key: STORAGE_DIR
+        value: /var/data/images
+
+      - key: MODEL_DIR
+        value: /var/data/models
+
+      - key: API_PREFIX
+        value: /api/v1
+
+      - key: MAX_UPLOAD_BYTES
+        value: "10485760"
+
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+    disk:
+      name: grabpic-data
+      mountPath: /var/data
+      sizeGB: 5
+
+databases:
+  - name: grabpic-db
+    databaseName: grabpic
+    user: grabpic
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
