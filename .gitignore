@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+.env
+*.db
+*.sqlite
+*.sqlite3
+
+# Model cache
+models/*.onnx
+
+# Ingested / sample data — keep dir, drop contents
+data/images/*
+!data/images/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
