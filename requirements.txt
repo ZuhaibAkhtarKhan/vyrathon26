@@ -1,0 +1,27 @@
+# Grabpic backend dependencies.
+#
+# Version lower bounds are chosen for compatibility with Python >= 3.11.
+# Tested resolutions on Python 3.11 / 3.12 / 3.14. If `pip install` stalls on
+# your platform, install binary-only with:
+#     pip install --only-binary :all: -r requirements.txt
+#
+# Production Postgres driver is commented out by default so that a fresh
+# install stays lean and works out of the box on SQLite. Uncomment (or
+# install separately) before deploying with DATABASE_URL=postgresql://...
+#
+# psycopg2-binary>=2.9.10
+
+fastapi>=0.115
+uvicorn[standard]>=0.32
+python-multipart>=0.0.12
+pydantic>=2.9
+pydantic-settings>=2.6
+SQLAlchemy>=2.0.36
+numpy>=1.26
+opencv-contrib-python>=4.10
+Pillow>=10.4
+httpx>=0.27
+
+# Dev / test
+pytest>=8.3
+pytest-asyncio>=0.24
