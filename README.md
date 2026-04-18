@@ -1,7 +1,6 @@
 # Grabpic — Intelligent Identity & Retrieval Engine
 
 > Vyrathon '26 — Backend problem set
-> "An ounce of requirements is worth a pound of coding."
 
 Grabpic is a backend service for large-scale event photography. Photographers
 dump tens of thousands of photos into storage; attendees authenticate with a
