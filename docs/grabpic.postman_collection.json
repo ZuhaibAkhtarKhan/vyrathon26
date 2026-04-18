@@ -1,0 +1,281 @@
+{
+    "info": {
+        "_postman_id": "c3a6a6e0-grab-pic-001",
+        "name": "Grabpic API",
+        "description": "Grabpic — Intelligent Identity & Retrieval Engine. Vyrathon'26 Backend problem set.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000",
+            "type": "string"
+        },
+        {
+            "key": "api_prefix",
+            "value": "/api/v1",
+            "type": "string"
+        },
+        {
+            "key": "grab_id",
+            "value": "",
+            "type": "string",
+            "description": "Set automatically after a successful /auth/selfie call."
+        },
+        {
+            "key": "image_id",
+            "value": "",
+            "type": "string",
+            "description": "Set automatically after a successful /ingest/image call."
+        }
+    ],
+    "item": [
+        {
+            "name": "Meta",
+            "item": [
+                {
+                    "name": "Root",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/",
+                            "host": ["{{base_url}}"],
+                            "path": [""]
+                        }
+                    }
+                },
+                {
+                    "name": "Health",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/health",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["health"]
+                        }
+                    }
+                },
+                {
+                    "name": "OpenAPI JSON",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/openapi.json",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["openapi.json"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Ingest",
+            "item": [
+                {
+                    "name": "Scan directory",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"directory\": \"./data/images\",\n  \"recursive\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/ingest/scan",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["ingest", "scan"]
+                        }
+                    }
+                },
+                {
+                    "name": "Ingest single image",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const j = pm.response.json();",
+                                    "if (j && j.result && j.result.image_id) {",
+                                    "    pm.collectionVariables.set('image_id', j.result.image_id);",
+                                    "    if (j.result.grab_ids && j.result.grab_ids.length) {",
+                                    "        pm.collectionVariables.set('grab_id', j.result.grab_ids[0]);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "description": "An image file (JPEG / PNG / WEBP / BMP)."
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/ingest/image",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["ingest", "image"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Selfie auth",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const j = pm.response.json();",
+                                    "if (j && j.grab_id) { pm.collectionVariables.set('grab_id', j.grab_id); }"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "description": "A selfie of the user."
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/auth/selfie",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["auth", "selfie"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Grabs",
+            "item": [
+                {
+                    "name": "List grabs",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/grabs?limit=100&offset=0",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["grabs"],
+                            "query": [
+                                {"key": "limit", "value": "100"},
+                                {"key": "offset", "value": "0"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get grab",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/grabs/{{grab_id}}",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["grabs", "{{grab_id}}"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get my photos (grab images)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/grabs/{{grab_id}}/images",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["grabs", "{{grab_id}}", "images"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get grab faces",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/grabs/{{grab_id}}/faces",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["grabs", "{{grab_id}}", "faces"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Images",
+            "item": [
+                {
+                    "name": "List images",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/images?limit=100&offset=0",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["images"],
+                            "query": [
+                                {"key": "limit", "value": "100"},
+                                {"key": "offset", "value": "0"}
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get image (with faces)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/images/{{image_id}}",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["images", "{{image_id}}"]
+                        }
+                    }
+                },
+                {
+                    "name": "Download image",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}{{api_prefix}}/images/{{image_id}}/download",
+                            "host": ["{{base_url}}{{api_prefix}}"],
+                            "path": ["images", "{{image_id}}", "download"]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
